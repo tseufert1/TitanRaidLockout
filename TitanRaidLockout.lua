@@ -63,6 +63,22 @@ local LOCALIZED_WOTLK_HEROIC_NAMES = {
     ["PoS"] = GetRealZoneText(658),
     ["HoR"] = GetRealZoneText(668)
 }
+local LOCALIZED_CATA_HEROIC_NAMES = {
+    ["SFK"] = GetRealZoneText(33),
+    ["DM"] = GetRealZoneText(36),
+    ["ZA5"] = GetRealZoneText(568),
+    ["TotT"] = GetRealZoneText(643),
+    ["HoO"] = GetRealZoneText(644),
+    ["BRC"] = GetRealZoneText(645),
+    ["VP"] = GetRealZoneText(657),
+    ["GB"] = GetRealZoneText(670),
+    ["STC"] = GetRealZoneText(725),
+    ["TOLV"] = GetRealZoneText(755),
+    ["ZG5"] = GetRealZoneText(859),
+    ["ET"] = GetRealZoneText(938),
+    ["WoE"] = GetRealZoneText(939),
+    ["HoT"] = GetRealZoneText(940)
+}
 
 -- Init all raid names
 local LOCALIZED_CLASSIC_RAID_NAMES = {
@@ -94,6 +110,14 @@ local LOCALIZED_WOTLK_RAID_NAMES = {
     ["ToC"] = GetRealZoneText(649),
     ["RS"] = GetRealZoneText(724)
 }
+local LOCALIZED_CATA_RAID_NAMES = {
+    ["BwD"] = GetRealZoneText(669),
+    ["BoT"] = GetRealZoneText(671),
+    ["FL"] = GetRealZoneText(720),
+    ["TotFW"] = GetRealZoneText(754),
+    ["BH"] = GetRealZoneText(757),
+    ["DS"] = GetRealZoneText(967)
+}
 
 -- Collect separate heroics tables into one table
 local LOCALIZED_ALL_HEROIC_NAMES = {}
@@ -101,6 +125,9 @@ for k, v in pairs(LOCALIZED_TBC_HEROIC_NAMES) do
     LOCALIZED_ALL_HEROIC_NAMES[k] = v
 end
 for k, v in pairs(LOCALIZED_WOTLK_HEROIC_NAMES) do
+    LOCALIZED_ALL_HEROIC_NAMES[k] = v
+end
+for k, v in pairs(LOCALIZED_CATA_HEROIC_NAMES) do
     LOCALIZED_ALL_HEROIC_NAMES[k] = v
 end
 
@@ -113,6 +140,9 @@ for k, v in pairs(LOCALIZED_TBC_RAID_NAMES) do
     LOCALIZED_ALL_RAID_NAMES[k] = v
 end
 for k, v in pairs(LOCALIZED_WOTLK_RAID_NAMES) do
+    LOCALIZED_ALL_RAID_NAMES[k] = v
+end
+for k, v in pairs(LOCALIZED_CATA_RAID_NAMES) do
     LOCALIZED_ALL_RAID_NAMES[k] = v
 end
 
@@ -151,11 +181,9 @@ function TRaidLockout_OnLoad(self)
             ShowAllCharacters = false,
             ShowUnlockedButton = false,
             ShowHeroicsButton = true,
-            ShowLocked10manRaidsButton = true,
-            ShowRaidSize = true,
-            ShowUnlockedTooltip = false,
             ShowClassicRaidsInTooltip = true,
             ShowTBCRaidsInTooltip = true,
+            ShowWOTLKRaidsInTooltip = true,
             ShowHeroicsInTooltip = true,
             ShowIcon = true,
             ShowColoredText = true,
@@ -246,24 +274,6 @@ function TitanPanelRightClickMenu_PrepareTitanRaidLockoutMenu()
             info.checked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowHeroicsButton")
             L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"])
             
-            info = {};
-            info.text = L["ShowLocked10manRaids"];
-            info.func = function()
-                TitanToggleVar(TITAN_RAIDLOCKOUT_ID, "ShowLocked10manRaidsButton")
-                TitanPanelPluginHandle_OnUpdate({TITAN_RAIDLOCKOUT_ID, 1})
-            end
-            info.checked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowLocked10manRaidsButton")
-            L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"])
-
-            info = {};
-            info.text = L["ShowRaidSize"];
-            info.func = function()
-                TitanToggleVar(TITAN_RAIDLOCKOUT_ID, "ShowRaidSize")
-                TitanPanelPluginHandle_OnUpdate({TITAN_RAIDLOCKOUT_ID, 1})
-            end
-            info.checked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowRaidSize")
-            L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"])
-
         end
 
         if _G["L_UIDROPDOWNMENU_MENU_VALUE"] == "TooltipOptions" then
@@ -299,6 +309,14 @@ function TitanPanelRightClickMenu_PrepareTitanRaidLockoutMenu()
                 TitanToggleVar(TITAN_RAIDLOCKOUT_ID, "ShowTBCRaidsInTooltip")
             end
             info.checked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowTBCRaidsInTooltip")
+            L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+
+            info = {};
+            info.text = L["TooltipShowWOTLKRaids"];
+            info.func = function()
+                TitanToggleVar(TITAN_RAIDLOCKOUT_ID, "ShowWOTLKRaidsInTooltip")
+            end
+            info.checked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowWOTLKRaidsInTooltip")
             L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
 
             info = {};
@@ -421,16 +439,6 @@ end
 --  Panel button text
 -- **************************************************************************
 function TRaidLockout_SetButtonText()
-
-    local numSaved = GetNumSavedInstances()
-    local showColoredText = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowColoredText")
-    local showUnlocked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowUnlockedButton")
-    local showHeroics = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowHeroicsButton")
-    local show10manRaids = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowLocked10manRaidsButton")
-    local showRaidSize = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowRaidSize")
-    buttonLabel = L["Lockout: "]
-    buttonText = TitanUtils_Ternary(showColoredText, COLOR.orange, COLOR.white)
-
     local heroicsTableWoTLK = {
         -- key, subTable{ localized abbr, is locked }
         ["UK"] = {L["UK"], false},
@@ -464,152 +472,114 @@ function TRaidLockout_SetButtonText()
         ["RS"] = {L["RS"], false}
     }
 
-    local raidsTableWoTLK10 = {}
-    local raidsTableWoTLK25 = {}
+    local heroicsTableCata = {
+        -- key, subTable{ localized abbr, is locked }
+        ["SFK"] = {L["SFK"], false},
+        ["DM"] = {L["DM"], false},
+        ["ZA5"] = {L["ZA5"], false},
+        ["TotT"] = {L["TotT"], false},
+        ["HoO"] = {L["HoO"], false},
+        ["BRC"] = {L["BRC"], false},
+        ["VP"] = {L["VP"], false},
+        ["GB"] = {L["GB"], false},
+        ["STC"] = {L["STC"], false},
+        ["TOLV"] = {L["TOLV"], false},
+        ["ZG5"] = {L["ZG5"], false},
+        ["ET"] = {L["ET"], false},
+        ["WoE"] = {L["WoE"], false},
+        ["HoT"] = {L["HoT"], false}
+    }
 
-    for k, v in pairs(raidsTableWoTLK) do
-        raidsTableWoTLK10[k] = {v[1], false}
-    end
+    local raidsTableCata = {
+        -- key, subTable{ localized abbr, is locked }
+        ["BwD"] = {L["BwD"], false},
+        ["BoT"] = {L["BoT"], false},
+        ["FL"] = {L["FL"], false},
+        ["TotFW"] = {L["TotFW"], false},
+        ["BH"] = {L["BH"], false},
+        ["DS"] = {L["DS"], false}
+    }
 
-    for k, v in pairs(raidsTableWoTLK) do
-        raidsTableWoTLK25[k] = {v[1], false}
-    end
+    local showColoredText = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowColoredText")
+    local showUnlocked = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowUnlockedButton")
+    local showHeroics = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowHeroicsButton")
+    local lockedHeroicsExist = false
+    local lockedRaidsExist = false
+    local unlockedRaidsExist = false
+    buttonLabel = L["Lockout: "]
 
-    if showUnlocked then -- Show green abbr
-
-        if numSaved > 0 then
-            -- Loop thru all saved instances, check if this instance in the loop is a Heroic Dungeon
-            if showHeroics then
-                for savedIndex = 1, numSaved do
-                    local name = GetSavedInstanceInfo(savedIndex)
-                    if TitanUtils_TableContainsValue(LOCALIZED_WOTLK_HEROIC_NAMES, name) then
-
-                        for key, subTable in pairs(heroicsTableWoTLK) do
-                            if name == LOCALIZED_WOTLK_HEROIC_NAMES[key] then
-                                buttonText = buttonText .. " " .. subTable[1]
-                                subTable[2] = true
-                            end
-                        end
-
+    -- Get the lockout status of all Cata raids and heroics
+    local numSaved = GetNumSavedInstances()
+    if numSaved > 0 then
+        for savedIndex = 1, numSaved do
+            local name = GetSavedInstanceInfo(savedIndex)
+            if TitanUtils_TableContainsValue(LOCALIZED_CATA_HEROIC_NAMES, name) then
+                for key, subTable in pairs(heroicsTableCata) do
+                    if name == LOCALIZED_CATA_HEROIC_NAMES[key] then
+                        subTable[2] = true
+                        lockedHeroicsExist = true
                     end
                 end
             end
 
-            if show10manRaids then
-                if showColoredText then
-                    buttonText = buttonText .. COLOR.darkorange
-                end
-                -- Loop again and check if this instance in the loop is a 10man Raid
-                for savedIndex = 1, numSaved do
-                    local name, _, _, _, _, _, _, _, maxPlayers = GetSavedInstanceInfo(savedIndex)
-                            
-                    if maxPlayers == 10 and TitanUtils_TableContainsValue(LOCALIZED_ALL_RAID_NAMES, name) then
-
-                        for key, subTable in pairs(raidsTableWoTLK10) do
-                            if name == LOCALIZED_ALL_RAID_NAMES[key] then
-                                buttonText = buttonText .. " " .. subTable[1]
-                                if showRaidSize then buttonText = buttonText .. "10" end
-                                subTable[2] = true
-                            end
-                        end
-
+            if TitanUtils_TableContainsValue(LOCALIZED_CATA_RAID_NAMES, name) then
+                for key, subTable in pairs(raidsTableCata) do
+                    if name == LOCALIZED_CATA_RAID_NAMES[key] then
+                        subTable[2] = true
+                        lockedRaidsExist = true
+                    else
+                        unlockedRaidsExist = true
                     end
-                end
-            end
-
-            if showColoredText then
-                buttonText = buttonText .. COLOR.red
-            end
-             -- Loop again and check if this instance in the loop is a 25man Raid
-             for savedIndex = 1, numSaved do
-                local name, _, _, _, _, _, _, _, maxPlayers = GetSavedInstanceInfo(savedIndex)
-                
-                if maxPlayers == 25 and TitanUtils_TableContainsValue(LOCALIZED_ALL_RAID_NAMES, name) then
-
-                    for key, subTable in pairs(raidsTableWoTLK25) do
-                        if name == LOCALIZED_ALL_RAID_NAMES[key] then
-                            buttonText = buttonText .. " " .. subTable[1]
-                            if showRaidSize then buttonText = buttonText .. "25" end
-                            subTable[2] = true
-                        end
-                    end
-
                 end
             end
         end
+    end
 
-        buttonText = buttonText .. COLOR.white
+    buttonText = COLOR.white
 
-        buttonText = buttonText .. TitanUtils_Ternary(showColoredText, COLOR.green, " |")
-
-        -- Render the remaining unlocked 10 and 25 WoTLK raids
-
-        if show10manRaids then
-            for index, subTable in pairs(raidsTableWoTLK10) do
-                if not subTable[2] then
-                    buttonText = buttonText .. " " .. subTable[1]
-                    if showRaidSize then buttonText = buttonText .. "10" end
-                end
-            end
+    -- Render locked Cata heroics
+    if showHeroics and lockedHeroicsExist then
+        if showColoredText then
+            buttonText = buttonText .. COLOR.darkorange
         end
 
-        for index, subTable in pairs(raidsTableWoTLK25) do
+        for key, subTable in pairs(heroicsTableCata) do
+            if subTable[2] then
+                buttonText = buttonText .. " " .. subTable[1]
+            end
+        end
+    end
+
+    -- Render locked Cata raids
+    if lockedRaidsExist then
+        if lockedHeroicsExist then
+            buttonText = buttonText .. COLOR.white .. " | "
+        end
+
+        if showColoredText then
+            buttonText = buttonText .. COLOR.orange
+        end
+    
+        for index, subTable in pairs(raidsTableCata) do
+            if subTable[2] then
+                buttonText = buttonText .. " " .. subTable[1]
+            end
+        end
+    end
+
+    -- Render unlocked Cata raids
+    if showUnlocked and unlockedRaidsExist then
+        if lockedHeroicsExist or lockedRaidsExist then
+            buttonText = buttonText .. COLOR.white .. " | "
+        end
+
+        if showColoredText then
+            buttonText = buttonText .. COLOR.green
+        end
+
+        for index, subTable in pairs(raidsTableCata) do
             if not subTable[2] then
                 buttonText = buttonText .. " " .. subTable[1]
-                if showRaidSize then buttonText = buttonText .. "25" end
-            end
-        end
-
-    else -- Don't show green abbr
-        if numSaved > 0 then
-            -- Loop thru all saved instances, check if this instance in the loop is a Heroic Dungeon
-            if showHeroics then
-                for savedIndex = 1, numSaved do
-                    local name = GetSavedInstanceInfo(savedIndex)
-                    if TitanUtils_TableContainsValue(LOCALIZED_WOTLK_HEROIC_NAMES, name) then
-                        for key, subTable in pairs(heroicsTableWoTLK) do
-                            if name == LOCALIZED_WOTLK_HEROIC_NAMES[key] then
-                                buttonText = buttonText .. " " .. subTable[1]
-                            end
-                        end
-                    end
-                end
-            end
-
-            if show10manRaids then
-                if showColoredText then
-                    buttonText = buttonText .. COLOR.darkorange
-                end
-                -- Loop again and check if this instance in the loop is a 10man Raid
-                for savedIndex = 1, numSaved do
-                    local name, _, _, _, _, _, _, _, maxPlayers = GetSavedInstanceInfo(savedIndex)
-        
-                    if maxPlayers == 10 and TitanUtils_TableContainsValue(LOCALIZED_ALL_RAID_NAMES, name) then
-                        for key, subTable in pairs(raidsTableWoTLK10) do
-                            if name == LOCALIZED_ALL_RAID_NAMES[key] then
-                                buttonText = buttonText .. " " .. subTable[1]
-                                if showRaidSize then buttonText = buttonText .. "10" end
-                            end
-                        end
-                    end
-                end
-            end
-
-            if showColoredText then
-                buttonText = buttonText .. COLOR.red
-            end
-            -- Loop again and check if this instance in the loop is a 25man Raid
-            for savedIndex = 1, numSaved do
-                local name, _, _, _, _, _, _, _, maxPlayers = GetSavedInstanceInfo(savedIndex)
-
-                if maxPlayers == 25 and TitanUtils_TableContainsValue(LOCALIZED_ALL_RAID_NAMES, name) then
-                    for key, subTable in pairs(raidsTableWoTLK25) do
-                        if name == LOCALIZED_ALL_RAID_NAMES[key] then
-                            buttonText = buttonText .. " " .. subTable[1]
-                            if showRaidSize then buttonText = buttonText .. "25" end
-                        end
-                    end
-                end
             end
         end
     end
@@ -619,41 +589,62 @@ end
 -- **************************************************************************
 --  Panel tooltip
 -- **************************************************************************
-function TRaidLockout_ToolTip_InstanceDataLoop(localizedInstanceTable, charData, instanceColorPrimary, instanceColorSecondary)
-
+function TRaidLockout_ToolTip_InstanceDataLoop(localizedInstanceTable, charData, instanceColorPrimary, instanceColorSecondary, flexLock)
     local resultText = ""
+    local highestProgress = {}
+
+    -- Cata and WOTLK raids use flexible lockouts. Characters can only kill a raid boss once per lockout
+    -- regardless of raid size and difficulty. However, the API still returns separate records for each
+    -- combination of size/difficulty, so we display only the one with the highest progress.
+    if flexLock then
+        for instanceNameWithDifficulty, instanceData in pairs(charData) do
+            local instanceName, _, _, _ = strsplit(";", instanceNameWithDifficulty, 4)
+            if TitanUtils_TableContainsValue(localizedInstanceTable, instanceName) then
+                if (highestProgress[instanceName] == nil) or (charData[highestProgress[instanceName]]["Progress"] < instanceData["Progress"]) then
+                    highestProgress[instanceName] = instanceNameWithDifficulty
+                end
+            end
+        end
+    end
 
     for instanceNameWithDifficulty, instanceData in pairs(charData) do
 
         local instanceName, maxPlayers, difficultyId, _ = strsplit(";", instanceNameWithDifficulty, 4)
 
         if TitanUtils_TableContainsValue(localizedInstanceTable, instanceName) then
+            if (not flexLock) or (instanceNameWithDifficulty == highestProgress[instanceName]) then
+                local dateToReset = TRaidLockout_UNIXTimeToDateTimeString(instanceData["Reset"])
+                local encounterProgress = instanceData["Progress"]
+                local numEncounters = instanceData["Encounters"]
+                local _, _, isHeroic, _, _, _, _ = GetDifficultyInfo(difficultyId)
+    
+                local instanceNameColor = instanceColorPrimary
+                if (maxPlayers == "25" and not flexLock) then
+                    instanceNameColor = instanceColorSecondary
+                end
+    
+                local heroicDifficultyMarker = ""
+                if (isHeroic) then
+                    heroicDifficultyMarker = "H"
+                end
+    
+                local progress = ""
+                if (encounterProgress < numEncounters) then
+                    progress = progress .. COLOR.green .. encounterProgress
+                else
+                    progress = progress .. COLOR.yellow .. encounterProgress
+                end
 
-            local dateToReset = TRaidLockout_UNIXTimeToDateTimeString(instanceData["Reset"])
-            local encounterProgress = instanceData["Progress"]
-            local numEncounters = instanceData["Encounters"]
-            local _, _, isHeroic, _, _, _, _ = GetDifficultyInfo(difficultyId)
-
-            local instanceNameColor = instanceColorPrimary
-            if (maxPlayers == "25") then
-                instanceNameColor = instanceColorSecondary
+                resultText = resultText .. instanceNameColor .. " - " .. instanceName
+    
+                if not flexLock then
+                    resultText = resultText .. " (" .. heroicDifficultyMarker .. maxPlayers .. ")"
+                end
+    
+                resultText = resultText ..
+                    COLOR.white .. " [" .. progress .. COLOR.yellow .. "/" .. numEncounters .. COLOR.white .. "]" ..
+                    COLOR.yellow .. " \t " .. dateToReset .. "\n"
             end
-
-            local heroicDifficultyMarker = ""
-            if (isHeroic) then
-                heroicDifficultyMarker = "H"
-            end
-
-            local progress = ""
-            if (encounterProgress < numEncounters) then
-                progress = progress .. COLOR.green .. encounterProgress
-            else
-                progress = progress .. COLOR.yellow .. encounterProgress
-            end
-
-            resultText = resultText .. instanceNameColor .. " - " .. instanceName .. " (" .. heroicDifficultyMarker .. maxPlayers .. ")" .. COLOR.white .. " [" .. progress ..
-                             COLOR.yellow .. "/" .. numEncounters .. COLOR.white .. "]" .. COLOR.yellow .. " \t " ..
-                             dateToReset .. "\n"
         end
 
     end
@@ -667,28 +658,34 @@ function TRaidLockout_ToolTip_StringFormat_PlayerCharLockouts(isPlayerChar, show
     local resultText = ""
     local showClassicRaids = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowClassicRaidsInTooltip")
     local showTBCRaids = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowTBCRaidsInTooltip")
+    local showWOTLKRaids = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowWOTLKRaidsInTooltip")
     local showHeroicsTooltip = TitanGetVar(TITAN_RAIDLOCKOUT_ID, "ShowHeroicsInTooltip")
 
     if isPlayerChar and numSaved < 1 or showAllChars and numSaved < 1 then
         resultText = COLOR.green .. " - " .. L["All raids and heroics are unlocked"] .. COLOR.white .. "\n"
     else
-        -- Show any heroics first
-        local heroicsResultsText = TitanUtils_Ternary(showHeroicsTooltip, TRaidLockout_ToolTip_InstanceDataLoop(
-            LOCALIZED_ALL_HEROIC_NAMES, charData, COLOR.heroic, COLOR.white), "")
+        -- Current expansion raids
+        resultText = TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_CATA_RAID_NAMES, charData, COLOR.orange, COLOR.darkorange, true)
 
-        -- Then show any classic raids
-        local classicResultsText = TitanUtils_Ternary(showClassicRaids, TRaidLockout_ToolTip_InstanceDataLoop(
-            LOCALIZED_CLASSIC_RAID_NAMES, charData, COLOR.classic, COLOR.white), "")
+        -- Show any heroics next
+        if showHeroicsTooltip then
+            resultText = resultText ..
+                TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_ALL_HEROIC_NAMES, charData, COLOR.heroic, COLOR.white, false)
+        end
 
-        -- Then show any tbc raids
-        local tbcResultsText = TitanUtils_Ternary(showClassicRaids, TRaidLockout_ToolTip_InstanceDataLoop(
-            LOCALIZED_TBC_RAID_NAMES, charData, COLOR.classic, COLOR.white), "")
-
-        -- Then show any wotlk raids
-        local wotlkResultsText = TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_WOTLK_RAID_NAMES, charData,
-            COLOR.orange, COLOR.darkorange)
-
-        resultText = resultText .. heroicsResultsText .. classicResultsText .. tbcResultsText .. wotlkResultsText
+        -- Finally, all older expansion raids
+        if showWOTLKRaids then
+            resultText = resultText ..
+                TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_WOTLK_RAID_NAMES, charData, COLOR.classic, COLOR.white, true)
+        end
+        if showTBCRaids then
+            resultText = resultText ..
+                TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_TBC_RAID_NAMES, charData, COLOR.classic, COLOR.white, false)
+        end
+        if showClassicRaids then
+            resultText = resultText ..
+                TRaidLockout_ToolTip_InstanceDataLoop(LOCALIZED_CLASSIC_RAID_NAMES, charData, COLOR.classic, COLOR.white, false)
+        end
     end
 
     return resultText

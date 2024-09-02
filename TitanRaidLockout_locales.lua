@@ -3,15 +3,14 @@ L = LibStub("AceLocale-3.0"):GetLocale("TitanClassic", true)
 
 -- Addon menu text
 L["PanelOptions"] = "Panel options" -- Settings menu option heading
-L["ShowAllRaids"] = "Show both locked/unlocked raids" -- Settings menu option
+L["ShowAllRaids"] = "Show both locked and unlocked raids" -- Settings menu option
 L["ShowLockedHeroics"] = "Show locked heroics" -- Settings menu option
-L["ShowLocked10manRaids"] = "Show locked 10-man raids" -- Settings menu option
-L["ShowRaidSize"] = "Show raid size in abbreviations" -- Settings menu option
 L["TooltipOptions"] = "Tooltip options" -- Settings menu option heading
 L["ShowLayoutHint"] = "Show layout hint" -- Settings menu option
 L["ShowNonLockedCharacters"] = "Show non-locked characters" -- Settings menu option
 L["TooltipShowClassicRaids"] = "Show classic-era raids" -- Settings menu option
 L["TooltipShowTBCRaids"] = "Show Burning Crusade-era raids" -- Settings menu option
+L["TooltipShowWOTLKRaids"] = "Show Wrath of the Lich King-era raids" -- Settings menu option
 L["TooltipShowHeroics"] = "Show heroic dungeons" -- Settings menu option
 L["TITAN_PANEL_MENU_HIDE"] = "Hide" -- Settings menu option
 L["Lockout: "] = "Lockout: " -- Panel label text
@@ -48,6 +47,14 @@ L["ICC"] = "ICC" -- Icecrown Citadel
 L["ToC"] = "ToC" -- Trial of the Crusader
 L["RS"] = "RS" -- Ruby Sanctum
 
+-- Instance raid abbreviations: Cata
+L["BwD"] = "BwD" -- Blackwing Descent
+L["BoT"] = "BoT" -- Bastion of Twilight
+L["FL"] = "FL" -- Firelands
+L["TotFW"] = "TotFW" -- Throne of the Four Winds
+L["BH"] = "BH" -- Baradin Hold
+L["DS"] = "DS" -- Dragon Soul
+
 -- Instance heroic dungeon abbreviations: TBC
 L["BM"] = "BM" -- The Black Morass
 L["SHH"] = "SHH" -- The Shattered Halls
@@ -83,6 +90,22 @@ L["FoS"] = "FoS" -- The Forge of Souls
 L["ToC5"] = "ToC5" -- Trial of the Champion
 L["PoS"] = "PoS" -- Pit of Saron
 L["HoR"] = "HoR" -- Halls of Reflection
+
+-- Instance heroic dungeon abbreviations: Cata
+L["SFK"] = "SFK" -- Shadowfang Keep
+L["DM"] = "DM" -- Deadmines
+L["ZA5"] = "ZA5" -- Zul'Aman
+L["TotT"] = "TotT" -- Throne of the Tides
+L["HoO"] = "HoO" -- Halls of Origination
+L["BRC"] = "BRC" -- Blackrock Cavern
+L["VP"] = "VP" -- The Vortex Pinnacle
+L["GB"] = "GB" -- Grim Batol
+L["STC"] = "STC" -- The Stonecore
+L["TOLV"] = "TOLV" -- Lost City of the Tol'vir
+L["ZG5"] = "ZG5" -- Zul'Gurub
+L["ET"] = "ET" -- End Time
+L["WoE"] = "WoE" -- Well of Eternity
+L["HoT"] = "HoT" -- Hour of Twilight
 
 if GetLocale() == "deDE" then
     -- German localization here

@@ -1,3 +1,9 @@
+### v1.4.0 Cata
+
+-   Addition: Added support for Cataclysm raids and heroics
+-   Addition: Added settings menu option to show/hide WoTLK raids
+-   Bugfix: TBC raids are now properly shown/hidden by their settings menu option instead of using the Classic menu option
+
 ### v1.3.5 WoTLK
 
 -   Bugfix: Trial of the Crusader 10/25 raid not showing up in the bar
